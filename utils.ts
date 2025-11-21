@@ -1,4 +1,4 @@
-import { TaskStructureTemplate, TaskGroup, Subtask, ProjectStatus } from './types';
+import { TaskStructureTemplate, TaskGroup, Subtask, ProjectStatus, Project } from './types';
 
 // Task Template Definitions
 const RAW_SINGLE_TASKS: TaskStructureTemplate = {
@@ -124,4 +124,57 @@ export const getStatusColorClass = (status: string): string => {
 export const formatDateDisplay = (dateStr: string): string => {
     if (!dateStr) return 'N/A';
     return dateStr.split('-').reverse().join('-');
+};
+
+// --- New Helpers for Views ---
+
+export interface FlattenedTask {
+    id: string; // combo of project id and task indices
+    projectId: string;
+    projectName: string;
+    taskName: string;
+    status: ProjectStatus;
+    dueDate: string;
+    assignee: string;
+    type: 'Project' | 'TaskGroup' | 'Subtask';
+}
+
+export const getAllTasksFlattened = (projects: Project[]): FlattenedTask[] => {
+    const allTasks: FlattenedTask[] = [];
+
+    projects.forEach(project => {
+        // Add Project itself as a milestone
+        allTasks.push({
+            id: `prj-${project.id}`,
+            projectId: project.id!,
+            projectName: project.projectName,
+            taskName: `🚀 RELEASE: ${project.projectName}`,
+            status: project.status,
+            dueDate: project.releaseDate,
+            assignee: project.artist,
+            type: 'Project'
+        });
+
+        // Add Subtasks
+        if (project.tasks) {
+            project.tasks.forEach((group, gIndex) => {
+                group.subtasks.forEach((sub, sIndex) => {
+                    if (sub.dueDate) {
+                        allTasks.push({
+                            id: `sub-${project.id}-${gIndex}-${sIndex}`,
+                            projectId: project.id!,
+                            projectName: project.projectName,
+                            taskName: sub.name,
+                            status: sub.status,
+                            dueDate: sub.dueDate,
+                            assignee: sub.assignee,
+                            type: 'Subtask'
+                        });
+                    }
+                });
+            });
+        }
+    });
+
+    return allTasks.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
 };

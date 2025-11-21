@@ -6,6 +6,10 @@ import { Project } from './types';
 import ProjectForm from './components/ProjectForm';
 import ProjectList from './components/ProjectList';
 import TaskDetail from './components/TaskDetail';
+import CalendarView from './components/CalendarView';
+import GanttView from './components/GanttView';
+
+type ViewMode = 'project' | 'gantt' | 'calendar';
 
 const App: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
@@ -13,6 +17,7 @@ const App: React.FC = () => {
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [viewMode, setViewMode] = useState<ViewMode>('project');
 
     // 1. Authentication
     useEffect(() => {
@@ -92,39 +97,73 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#1a1a2e] text-gray-200 flex flex-col font-inter">
             {/* Header */}
-            <header className="p-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1f283e] shadow-lg shrink-0">
+            <header className="p-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1f283e] shadow-lg shrink-0 z-30 relative">
                 <h1 className="text-xl md:text-2xl font-extrabold text-indigo-400 tracking-tight">
                     KruengKao <span className="text-gray-400 font-light">PMS</span>
                 </h1>
                 <div className="flex items-center space-x-4 text-xs md:text-sm">
                     <span className="text-gray-400 hidden sm:inline">มุมมอง:</span>
                     <div className="flex space-x-1">
-                        <button className="font-bold text-white bg-indigo-600 px-3 py-1 rounded-md shadow-lg">Project</button>
-                        <button className="text-gray-400 hover:text-indigo-400 px-3 py-1 transition">Gantt</button>
-                        <button className="text-gray-400 hover:text-indigo-400 px-3 py-1 transition">Calendar</button>
+                        <button 
+                            onClick={() => setViewMode('project')}
+                            className={`px-3 py-1 rounded-md transition ${viewMode === 'project' ? 'font-bold text-white bg-indigo-600 shadow-lg' : 'text-gray-400 hover:text-indigo-400'}`}
+                        >
+                            Project
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('gantt')}
+                            className={`px-3 py-1 rounded-md transition ${viewMode === 'gantt' ? 'font-bold text-white bg-indigo-600 shadow-lg' : 'text-gray-400 hover:text-indigo-400'}`}
+                        >
+                            Gantt
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('calendar')}
+                            className={`px-3 py-1 rounded-md transition ${viewMode === 'calendar' ? 'font-bold text-white bg-indigo-600 shadow-lg' : 'text-gray-400 hover:text-indigo-400'}`}
+                        >
+                            Calendar
+                        </button>
                     </div>
                     <span className="text-[10px] text-gray-500 font-mono hidden md:inline">ID: {user?.uid.substring(0, 6)}...</span>
                 </div>
             </header>
 
-            {/* Main Content */}
-            <main className="p-4 md:p-6 grid lg:grid-cols-3 gap-6 h-[calc(100vh-4rem)] overflow-hidden">
+            {/* Main Content Area */}
+            <main className="flex-1 overflow-hidden relative">
                 
-                {/* Left Panel: Form & List */}
-                <div className="lg:col-span-1 flex flex-col gap-6 h-full overflow-hidden">
-                    <ProjectForm userId={user!.uid} />
-                    <ProjectList 
-                        userId={user!.uid} 
-                        projects={projects} 
-                        selectedProjectId={selectedProjectId}
-                        onSelectProject={setSelectedProjectId}
-                    />
-                </div>
+                {/* Project View (Original Split Pane) */}
+                {viewMode === 'project' && (
+                    <div className="p-4 md:p-6 grid lg:grid-cols-3 gap-6 h-[calc(100vh-4rem)] overflow-hidden">
+                        {/* Left Panel: Form & List */}
+                        <div className="lg:col-span-1 flex flex-col gap-6 h-full overflow-hidden">
+                            <ProjectForm userId={user!.uid} />
+                            <ProjectList 
+                                userId={user!.uid} 
+                                projects={projects} 
+                                selectedProjectId={selectedProjectId}
+                                onSelectProject={setSelectedProjectId}
+                            />
+                        </div>
 
-                {/* Right Panel: Details */}
-                <div className="lg:col-span-2 bg-[#1f283e] p-4 md:p-6 rounded-xl shadow-xl overflow-hidden h-full border border-gray-700/30">
-                    <TaskDetail userId={user!.uid} project={selectedProject} />
-                </div>
+                        {/* Right Panel: Details */}
+                        <div className="lg:col-span-2 bg-[#1f283e] p-4 md:p-6 rounded-xl shadow-xl overflow-hidden h-full border border-gray-700/30">
+                            <TaskDetail userId={user!.uid} project={selectedProject} />
+                        </div>
+                    </div>
+                )}
+
+                {/* Gantt View */}
+                {viewMode === 'gantt' && (
+                    <div className="h-full w-full">
+                        <GanttView projects={projects} />
+                    </div>
+                )}
+
+                {/* Calendar View */}
+                {viewMode === 'calendar' && (
+                    <div className="h-full w-full">
+                        <CalendarView projects={projects} />
+                    </div>
+                )}
 
             </main>
         </div>
