@@ -1,3 +1,4 @@
+
 import { Timestamp } from 'firebase/firestore';
 
 export type ProjectStatus = 'To do' | 'In progress' | 'Done' | 'On Hold';
@@ -15,7 +16,7 @@ export interface TaskGroup {
     title: string;
     subtasks: Subtask[];
     status: ProjectStatus;
-    dueDate: string;
+    dueDate: string; // Usually the earliest due date of subtasks or the latest
 }
 
 export interface Project {
@@ -32,6 +33,12 @@ export interface Project {
     createdAt?: Timestamp;
 }
 
+export interface TaskConfigItem {
+    name: string;
+    daysBeforeRelease: number; // Default configuration for this task
+}
+
+// Template can be simple strings (legacy/fallback) or Config objects
 export interface TaskStructureTemplate {
-    [key: string]: string[] | { [key: string]: string[] };
+    [key: string]: (string | TaskConfigItem)[] | { [key: string]: (string | TaskConfigItem)[] };
 }

@@ -1,3 +1,4 @@
+
 import { 
     collection, 
     query, 
@@ -36,9 +37,10 @@ export const addProject = async (userId: string, data: {
     label: string;
     projectType: string;
 }) => {
-    const dueDateForTasks = calculateDueDateTime(data.releaseDate);
     const rawTemplate = getTaskTemplate(data.projectType);
-    const structuredTasks = createTaskStructure(rawTemplate, dueDateForTasks);
+    
+    // Pass releaseDate directly. createTaskStructure now handles calculation per task config.
+    const structuredTasks = createTaskStructure(rawTemplate, data.releaseDate);
 
     const newProject: Partial<Project> = {
         projectName: data.projectName,
@@ -57,15 +59,33 @@ export const addProject = async (userId: string, data: {
 };
 
 export const updateProjectReleaseDate = async (userId: string, projectId: string, currentProject: Project, newReleaseDate: string) => {
-    const newDueDateForTasks = calculateDueDateTime(newReleaseDate);
+    // Note: When updating release date, we currently shift all tasks by the same delta or re-calculate?
+    // Re-calculating using the original template would lose 'Assignee' and 'Status' data.
+    // So we must calculate the *difference* in days between old release date and new release date,
+    // and shift existing task dates by that difference.
     
+    const oldRelease = new Date(currentProject.releaseDate);
+    const newRelease = new Date(newReleaseDate);
+    const diffTime = newRelease.getTime() - oldRelease.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+
     // Deep copy tasks
     const newTasks = JSON.parse(JSON.stringify(currentProject.tasks)) as TaskGroup[];
     
     newTasks.forEach(taskGroup => {
-        taskGroup.dueDate = newDueDateForTasks;
+        // Update group due date
+        if (taskGroup.dueDate) {
+            const d = new Date(taskGroup.dueDate);
+            d.setDate(d.getDate() + diffDays);
+            taskGroup.dueDate = d.toISOString().split('T')[0];
+        }
+
         taskGroup.subtasks.forEach(subtask => {
-            subtask.dueDate = newDueDateForTasks;
+            if (subtask.dueDate) {
+                const d = new Date(subtask.dueDate);
+                d.setDate(d.getDate() + diffDays);
+                subtask.dueDate = d.toISOString().split('T')[0];
+            }
         });
     });
 
