@@ -98,9 +98,12 @@ const App: React.FC = () => {
         <div className="min-h-screen bg-[#1a1a2e] text-gray-200 flex flex-col font-inter">
             {/* Header */}
             <header className="p-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1f283e] shadow-lg shrink-0 z-30 relative">
-                <h1 className="text-xl md:text-2xl font-extrabold text-indigo-400 tracking-tight">
-                    KruengKao <span className="text-gray-400 font-light">PMS</span>
-                </h1>
+                <div className="flex items-end">
+                    <h1 className="text-xl md:text-2xl font-extrabold text-indigo-400 tracking-tight">
+                        KruengKao <span className="text-gray-400 font-light">PMS</span>
+                    </h1>
+                    <span className="text-xs text-gray-500 font-normal ml-2 mb-1">v 1.0</span>
+                </div>
                 <div className="flex items-center space-x-4 text-xs md:text-sm">
                     <span className="text-gray-400 hidden sm:inline">มุมมอง:</span>
                     <div className="flex space-x-1">

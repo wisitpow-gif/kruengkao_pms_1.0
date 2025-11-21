@@ -79,12 +79,23 @@ export const updateProjectReleaseDate = async (userId: string, projectId: string
             d.setDate(d.getDate() + diffDays);
             taskGroup.dueDate = d.toISOString().split('T')[0];
         }
+        // Update group start date
+        if (taskGroup.startDate) {
+            const d = new Date(taskGroup.startDate);
+            d.setDate(d.getDate() + diffDays);
+            taskGroup.startDate = d.toISOString().split('T')[0];
+        }
 
         taskGroup.subtasks.forEach(subtask => {
             if (subtask.dueDate) {
                 const d = new Date(subtask.dueDate);
                 d.setDate(d.getDate() + diffDays);
                 subtask.dueDate = d.toISOString().split('T')[0];
+            }
+            if (subtask.startDate) {
+                const d = new Date(subtask.startDate);
+                d.setDate(d.getDate() + diffDays);
+                subtask.startDate = d.toISOString().split('T')[0];
             }
         });
     });

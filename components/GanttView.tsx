@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Project } from '../types';
 import { getStatusColorClass } from '../utils';
 
@@ -31,8 +31,8 @@ const GanttView: React.FC<GanttViewProps> = ({ projects }) => {
 
             <div className="flex-1 flex overflow-hidden border border-gray-700 rounded-xl bg-[#1f283e]">
                 {/* Left Sidebar: Task Names */}
-                <div className="w-64 flex-shrink-0 border-r border-gray-700 bg-[#1f283e] overflow-y-auto scrollbar-hide z-10">
-                    <div className="h-10 border-b border-gray-700 bg-[#1a1a2e] sticky top-0 flex items-center px-4 font-bold text-gray-400 text-sm">
+                <div className="w-72 flex-shrink-0 border-r border-gray-700 bg-[#1f283e] overflow-y-auto scrollbar-hide z-10">
+                    <div className="h-10 border-b border-gray-700 bg-[#1a1a2e] sticky top-0 flex items-center px-4 font-bold text-gray-400 text-sm z-20">
                         Task Name
                     </div>
                     {projects.map(project => (
@@ -46,8 +46,9 @@ const GanttView: React.FC<GanttViewProps> = ({ projects }) => {
                             {project.tasks?.map((group, gIdx) => (
                                 <React.Fragment key={gIdx}>
                                     {group.subtasks.map((sub, sIdx) => (
-                                        <div key={`${project.id}-${gIdx}-${sIdx}`} className="px-4 py-1.5 text-xs text-gray-400 border-b border-gray-700/30 truncate hover:bg-gray-700/30 h-8 flex items-center">
-                                           {sub.name}
+                                        <div key={`${project.id}-${gIdx}-${sIdx}`} className="px-4 py-1 text-xs text-gray-400 border-b border-gray-700/30 truncate hover:bg-gray-700/30 h-8 flex items-center group">
+                                           <div className="w-3 h-3 rounded-full mr-2 flex-shrink-0" style={{ backgroundColor: sub.color || '#6366f1' }}></div>
+                                           <span className="truncate">{sub.name}</span>
                                         </div>
                                     ))}
                                 </React.Fragment>
@@ -57,7 +58,7 @@ const GanttView: React.FC<GanttViewProps> = ({ projects }) => {
                 </div>
 
                 {/* Right Side: Timeline */}
-                <div className="flex-1 overflow-x-auto overflow-y-auto">
+                <div className="flex-1 overflow-x-auto overflow-y-auto relative">
                     <div className="min-w-max">
                         {/* Header Row: Days */}
                         <div className="flex h-10 border-b border-gray-700 bg-[#1a1a2e] sticky top-0 z-20">
@@ -65,7 +66,7 @@ const GanttView: React.FC<GanttViewProps> = ({ projects }) => {
                                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                                 const isToday = new Date().toISOString().split('T')[0] === dateStr;
                                 return (
-                                    <div key={d} className={`w-8 shrink-0 flex items-center justify-center text-xs border-r border-gray-700/50 ${isToday ? 'bg-indigo-600 text-white' : 'text-gray-500'}`}>
+                                    <div key={d} className={`w-10 shrink-0 flex items-center justify-center text-xs border-r border-gray-700/50 ${isToday ? 'bg-indigo-600 text-white' : 'text-gray-500'}`}>
                                         {d}
                                     </div>
                                 );
@@ -75,17 +76,16 @@ const GanttView: React.FC<GanttViewProps> = ({ projects }) => {
                         {/* Grid Rows */}
                         {projects.map(project => (
                             <div key={`grid-${project.id}`}>
-                                {/* Project Row (Empty for now, just spacing) */}
+                                {/* Project Row */}
                                 <div className="h-[37px] bg-indigo-900/10 border-b border-gray-700/50 w-full flex">
-                                    {/* Check if Project Release Date is in this month */}
                                     {daysArray.map(d => {
                                         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
                                         const isRelease = project.releaseDate === dateStr;
                                         return (
-                                            <div key={d} className="w-8 shrink-0 border-r border-gray-700/30 h-full relative flex items-center justify-center">
+                                            <div key={d} className="w-10 shrink-0 border-r border-gray-700/30 h-full relative flex items-center justify-center">
                                                 {isRelease && (
                                                     <div className="absolute z-10" title={`Release: ${project.projectName}`}>
-                                                        <div className="w-4 h-4 bg-indigo-500 rotate-45 transform"></div>
+                                                        <div className="w-5 h-5 bg-indigo-500 rotate-45 transform border-2 border-[#1f283e] shadow-lg"></div>
                                                     </div>
                                                 )}
                                             </div>
@@ -96,29 +96,50 @@ const GanttView: React.FC<GanttViewProps> = ({ projects }) => {
                                 {/* Subtasks Rows */}
                                 {project.tasks?.map((group, gIdx) => (
                                     <React.Fragment key={`grid-group-${gIdx}`}>
-                                        {group.subtasks.map((sub, sIdx) => (
-                                            <div key={`${project.id}-${gIdx}-${sIdx}`} className="flex h-8 hover:bg-gray-700/20">
-                                                {daysArray.map(d => {
-                                                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-                                                    const isDue = sub.dueDate === dateStr;
-                                                    
-                                                    // Simple visualization: Just the due date block for now
-                                                    // Since we don't have start dates, we can't draw bars accurately.
-                                                    // We will draw a small pill if due.
-                                                    
-                                                    return (
-                                                        <div key={d} className={`w-8 shrink-0 border-r border-gray-700/20 border-b border-gray-700/20 h-full flex items-center justify-center relative ${isDue ? 'bg-gray-700/30' : ''}`}>
-                                                            {isDue && (
-                                                                <div 
-                                                                    className={`w-6 h-4 rounded-sm shadow-sm cursor-help ${getStatusColorClass(sub.status).split(' ')[0]}`}
-                                                                    title={`${sub.name} (Due: ${sub.dueDate})`}
-                                                                ></div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        ))}
+                                        {group.subtasks.map((sub, sIdx) => {
+                                            // Calculate position
+                                            const start = new Date(sub.startDate);
+                                            const end = new Date(sub.dueDate);
+                                            
+                                            return (
+                                                <div key={`${project.id}-${gIdx}-${sIdx}`} className="flex h-8 hover:bg-gray-700/20 relative">
+                                                    {daysArray.map(d => {
+                                                        const current = new Date(year, month, d);
+                                                        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                                                        
+                                                        // Check if cell is within task range
+                                                        // Normalize times to compare just dates
+                                                        const cTime = current.getTime();
+                                                        const sTime = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime();
+                                                        const eTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime();
+                                                        
+                                                        const inRange = cTime >= sTime && cTime <= eTime;
+                                                        const isStart = cTime === sTime;
+                                                        const isEnd = cTime === eTime;
+
+                                                        return (
+                                                            <div key={d} className="w-10 shrink-0 border-r border-gray-700/20 border-b border-gray-700/20 h-full flex items-center justify-center relative">
+                                                                {inRange && (
+                                                                    <div 
+                                                                        className={`absolute h-5 top-1.5 z-0 opacity-80
+                                                                            ${isStart ? 'rounded-l-md left-1' : 'left-0'} 
+                                                                            ${isEnd ? 'rounded-r-md right-1' : 'right-0'}
+                                                                        `}
+                                                                        style={{ 
+                                                                            backgroundColor: sub.color || '#6366f1',
+                                                                            left: isStart ? '2px' : '0',
+                                                                            right: isEnd ? '2px' : '0',
+                                                                            width: 'auto'
+                                                                        }}
+                                                                        title={`${sub.name}: ${sub.startDate} -> ${sub.dueDate}`}
+                                                                    ></div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            );
+                                        })}
                                     </React.Fragment>
                                 ))}
                             </div>

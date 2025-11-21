@@ -61,11 +61,11 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ userId, project }) => {
                                 <h3 className="text-lg font-semibold text-indigo-400 flex flex-col md:flex-row md:items-center">
                                     {taskGroup.title} 
                                     <span className="ml-0 md:ml-2 text-xs text-gray-500 font-normal mt-1 md:mt-0">
-                                        (กำหนดส่ง: {formatDateDisplay(taskGroup.dueDate)})
+                                        (ส่ง: {formatDateDisplay(taskGroup.dueDate)})
                                     </span>
                                 </h3>
                                 <div className="flex items-center space-x-2">
-                                    <span className="text-xs text-gray-400 hidden sm:inline">สถานะ Task:</span>
+                                    <span className="text-xs text-gray-400 hidden sm:inline">สถานะ:</span>
                                     <select 
                                         value={taskGroup.status}
                                         onChange={(e) => handleTaskGroupStatusChange(gIndex, e.target.value)}
@@ -77,23 +77,27 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ userId, project }) => {
                             </div>
 
                             {/* Subtask Table Header */}
-                            <div className="grid grid-cols-7 gap-2 items-center text-xs font-semibold uppercase text-gray-500 border-b border-gray-700 pb-2 mb-2">
+                            <div className="grid grid-cols-8 gap-2 items-center text-xs font-semibold uppercase text-gray-500 border-b border-gray-700 pb-2 mb-2">
                                 <div className="col-span-2">งานย่อย</div>
-                                <div>ผู้รับผิดชอบ</div>
-                                <div>สถานะ</div>
-                                <div>กำหนดส่ง</div>
+                                <div className="col-span-1">ผู้รับผิดชอบ</div>
+                                <div className="col-span-1">สถานะ</div>
+                                <div className="col-span-1">วันเริ่ม</div>
+                                <div className="col-span-1">กำหนดส่ง</div>
                                 <div className="col-span-2">หมายเหตุ</div>
                             </div>
 
                             {/* Subtasks */}
                             <div className="space-y-1">
                                 {taskGroup.subtasks.map((subtask, sIndex) => (
-                                    <div key={sIndex} className="grid grid-cols-7 gap-2 items-center py-2 border-b border-gray-700/30 text-sm hover:bg-gray-800/50 rounded px-1">
+                                    <div key={sIndex} className="grid grid-cols-8 gap-2 items-center py-2 border-b border-gray-700/30 text-sm hover:bg-gray-800/50 rounded px-1 group">
                                         {/* Name */}
-                                        <div className="col-span-2 font-light text-gray-300 text-xs md:text-sm">{subtask.name}</div>
+                                        <div className="col-span-2 font-light text-gray-300 text-xs md:text-sm flex items-center">
+                                            <div className="w-2 h-2 rounded-full mr-2" style={{ backgroundColor: subtask.color }}></div>
+                                            {subtask.name}
+                                        </div>
                                         
                                         {/* Assignee */}
-                                        <div>
+                                        <div className="col-span-1">
                                             <input 
                                                 type="text" 
                                                 value={subtask.assignee} 
@@ -103,7 +107,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ userId, project }) => {
                                         </div>
 
                                         {/* Status */}
-                                        <div>
+                                        <div className="col-span-1">
                                             <select 
                                                 value={subtask.status}
                                                 onChange={(e) => handleSubtaskChange(gIndex, sIndex, 'status', e.target.value)}
@@ -113,8 +117,18 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ userId, project }) => {
                                             </select>
                                         </div>
 
+                                        {/* Start Date */}
+                                        <div className="col-span-1">
+                                            <input 
+                                                type="date" 
+                                                value={subtask.startDate || ''}
+                                                onChange={(e) => handleSubtaskChange(gIndex, sIndex, 'startDate', e.target.value)}
+                                                className="w-full bg-gray-800/50 p-1 text-xs rounded border border-gray-700 focus:border-indigo-500 text-gray-400"
+                                            />
+                                        </div>
+
                                         {/* Due Date */}
-                                        <div>
+                                        <div className="col-span-1">
                                             <input 
                                                 type="date" 
                                                 value={subtask.dueDate || ''}
@@ -128,7 +142,7 @@ const TaskDetail: React.FC<TaskDetailProps> = ({ userId, project }) => {
                                             <input 
                                                 type="text" 
                                                 value={subtask.remark} 
-                                                placeholder="เพิ่มหมายเหตุ"
+                                                placeholder="..."
                                                 onChange={(e) => handleSubtaskChange(gIndex, sIndex, 'remark', e.target.value)}
                                                 className="w-full bg-gray-800/50 p-1 text-xs rounded border border-gray-700 focus:border-indigo-500 text-gray-400 placeholder-gray-600"
                                             />

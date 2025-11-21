@@ -52,14 +52,16 @@ const CalendarView: React.FC<CalendarViewProps> = ({ projects }) => {
                     <div className="flex-1 overflow-y-auto space-y-1 scrollbar-hide">
                         {daysTasks.map((task, i) => {
                             const isProject = task.type === 'Project';
-                            const statusClass = getStatusColorClass(task.status).replace('bg-', 'bg-opacity-20 bg-').replace('text-white', isProject ? 'text-indigo-200' : 'text-xs text-gray-200');
+                            const isDone = task.status === 'Done';
                             
                             return (
                                 <div 
                                     key={task.id} 
-                                    className={`px-1.5 py-1 rounded border-l-2 truncate cursor-pointer text-[10px] md:text-xs
-                                        ${task.type === 'Project' ? 'border-indigo-500 bg-indigo-900/30 font-bold' : getStatusColorClass(task.status).split(' ')[0] + ' bg-opacity-10'}
+                                    className={`px-1.5 py-1 rounded border-l-2 truncate cursor-pointer text-[10px] md:text-xs flex items-center
+                                        ${isProject ? 'bg-indigo-900/30 font-bold text-indigo-200' : 'bg-gray-700/30 text-gray-200'}
+                                        ${isDone ? 'opacity-50 line-through' : 'opacity-100'}
                                     `}
+                                    style={{ borderLeftColor: task.color }}
                                     title={`${task.projectName}: ${task.taskName} (${task.status})`}
                                 >
                                     {task.type !== 'Project' && <span className="text-gray-500 mr-1">[{task.projectName.substring(0,3)}]</span>}

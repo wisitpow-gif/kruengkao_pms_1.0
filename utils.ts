@@ -1,94 +1,108 @@
 
-import { TaskStructureTemplate, TaskGroup, Subtask, ProjectStatus, Project, TaskConfigItem } from './types';
+import { TaskStructureTemplate, TaskGroup, Subtask, ProjectStatus, Project, TaskConfigItem, FlattenedTask } from './types';
 
 // Default Offset Constant
 const DEFAULT_DAYS_BEFORE = 28;
+const DEFAULT_DURATION = 7;
+const DEFAULT_COLOR = '#6366f1'; // Indigo-500
 
 // Helper to define task config easily
-const t = (name: string, days: number = DEFAULT_DAYS_BEFORE): TaskConfigItem => ({ name, daysBeforeRelease: days });
+const t = (name: string, days: number, duration: number = DEFAULT_DURATION, color: string = DEFAULT_COLOR): TaskConfigItem => ({ 
+    name, 
+    daysBeforeRelease: days,
+    duration,
+    color
+});
+
+// Colors
+const C_AUDIO = '#8b5cf6'; // Violet
+const C_VIDEO = '#ec4899'; // Pink
+const C_DOC = '#f59e0b'; // Amber
+const C_ARTWORK = '#10b981'; // Emerald
+const C_ADMIN = '#64748b'; // Slate
 
 // Task Template Definitions with Defaults
 const RAW_SINGLE_TASKS: TaskStructureTemplate = {
     "Song Demo": [
-        t("Demo", 60), 
-        t("Super Demo", 50), 
-        t("Master", 45)
+        t("Demo", 60, 14, C_AUDIO), 
+        t("Super Demo", 50, 10, C_AUDIO), 
+        t("Master", 45, 5, C_AUDIO)
     ],
     "Music Video Production": [
-        t("Find Director", 60), 
-        t("Brief", 55), 
-        t("Pre-Production", 45), 
-        t("Shooting", 40), 
-        t("Post-Production", 30), 
-        t("Cutting and Color Check", 25), 
-        t("Audio Checking", 20)
+        t("Find Director", 60, 7, C_VIDEO), 
+        t("Brief", 55, 5, C_VIDEO), 
+        t("Pre-Production", 45, 10, C_VIDEO), 
+        t("Shooting", 40, 2, C_VIDEO), 
+        t("Post-Production", 30, 10, C_VIDEO), 
+        t("Cutting and Color Check", 25, 5, C_VIDEO), 
+        t("Audio Checking", 20, 3, C_VIDEO)
     ],
     "Songcode Request": [
-        t("Production Fee Form", 30), 
-        t("Songcode Form", 30), 
-        t("Lyrics.docx", 30)
+        t("Production Fee Form", 30, 3, C_ADMIN), 
+        t("Songcode Form", 30, 3, C_ADMIN), 
+        t("Lyrics.docx", 30, 1, C_ADMIN)
     ],
     "Song Registration": {
         "Documents": [
-            t("Registration Form", 42), 
-            t("Shelf Form", 42), 
-            t("Lyrics .txt", 42)
+            t("Registration Form", 42, 5, C_DOC), 
+            t("Shelf Form", 42, 5, C_DOC), 
+            t("Lyrics .txt", 42, 1, C_DOC)
         ],
         "Audio": [
-            t("Multitrack (MLT)", 21), 
-            t("Full Mix (F)", 21), 
-            t("Instrumental (B)", 21), 
-            t("MinusOne (M)", 21), 
-            t("ACapella (V)", 21), 
-            t("Tiktok Cut", 21), 
-            t("Ringtone", 21), 
-            t("Ring Back Tone", 21)
+            t("Multitrack (MLT)", 21, 2, C_AUDIO), 
+            t("Full Mix (F)", 21, 2, C_AUDIO), 
+            t("Instrumental (B)", 21, 2, C_AUDIO), 
+            t("MinusOne (M)", 21, 2, C_AUDIO), 
+            t("ACapella (V)", 21, 2, C_AUDIO), 
+            t("Tiktok Cut", 21, 1, C_AUDIO), 
+            t("Ringtone", 21, 1, C_AUDIO), 
+            t("Ring Back Tone", 21, 1, C_AUDIO)
         ],
         "Artwork": [
-            t("Banner", 21), 
-            t("Single Cover", 21), 
-            t("Streaming Profile", 21), 
-            t("Spotify Canvas", 21)
+            t("Banner", 21, 7, C_ARTWORK), 
+            t("Single Cover", 21, 14, C_ARTWORK), 
+            t("Streaming Profile", 21, 7, C_ARTWORK), 
+            t("Spotify Canvas", 21, 7, C_ARTWORK)
         ]
     },
     "VDO Registration": {
-        "Teaser": [t("Teaser", 21)],
+        "Teaser": [t("Teaser", 21, 5, C_VIDEO)],
         "MV": [
-            t("Download", 21), 
-            t("NoSubNoPlatform", 21), 
-            t("Clean", 21)
+            t("Download", 21, 1, C_VIDEO), 
+            t("NoSubNoPlatform", 21, 1, C_VIDEO), 
+            t("Clean", 21, 1, C_VIDEO)
         ],
         "Text": [
-            t("Teaser", 21), 
-            t("MV", 21)
+            t("Teaser", 21, 2, C_DOC), 
+            t("MV", 21, 2, C_DOC)
         ],
         "AW": [
-            t("BHS", 21), 
-            t("Thumbnail", 21)
+            t("BHS", 21, 5, C_ARTWORK), 
+            t("Thumbnail", 21, 5, C_ARTWORK)
         ],
         "MV Release": [
-            t("Thumbnail", 21), 
-            t("Title Desc", 21), 
-            t("Subtitles", 21), 
-            t("Debug Sharing", 21)
+            t("Thumbnail", 21, 1, C_ARTWORK), 
+            t("Title Desc", 21, 2, C_DOC), 
+            t("Subtitles", 21, 3, C_DOC), 
+            t("Debug Sharing", 21, 1, C_ADMIN)
         ]
     }
 };
 
 const RAW_ALBUM_TASKS: TaskStructureTemplate = {
-    "Song Demo": [t("Demo", 90), t("Super Demo", 75), t("Master", 60)],
-    "Songcode Request": [t("Production Fee Form", 45), t("Songcode Form", 45), t("Lyrics.docx", 45)],
+    "Song Demo": [t("Demo", 90, 20, C_AUDIO), t("Super Demo", 75, 15, C_AUDIO), t("Master", 60, 10, C_AUDIO)],
+    "Songcode Request": [t("Production Fee Form", 45, 5, C_ADMIN), t("Songcode Form", 45, 5, C_ADMIN), t("Lyrics.docx", 45, 2, C_ADMIN)],
     "Song Registration": {
-        "Documents": [t("Songlist", 30), t("Registration Form", 30), t("Shelf Form", 30), t("Lyrics .txt", 30)],
-        "Audio": [t("Multitrack (MLT)", 30), t("Full Mix (F)", 30), t("Instrumental (B)", 30), t("MinusOne (M)", 30), t("ACapella (V)", 30)],
-        "Artwork": [t("Banner", 21), t("Album Cover", 30), t("Streaming Profile", 21), t("Spotify Canvas", 21)]
+        "Documents": [t("Songlist", 30, 5, C_DOC), t("Registration Form", 30, 5, C_DOC), t("Shelf Form", 30, 5, C_DOC), t("Lyrics .txt", 30, 2, C_DOC)],
+        "Audio": [t("Multitrack (MLT)", 30, 5, C_AUDIO), t("Full Mix (F)", 30, 5, C_AUDIO), t("Instrumental (B)", 30, 5, C_AUDIO), t("MinusOne (M)", 30, 5, C_AUDIO), t("ACapella (V)", 30, 5, C_AUDIO)],
+        "Artwork": [t("Banner", 21, 10, C_ARTWORK), t("Album Cover", 30, 20, C_ARTWORK), t("Streaming Profile", 21, 5, C_ARTWORK), t("Spotify Canvas", 21, 10, C_ARTWORK)]
     }
 };
 
 const RAW_LIVE_SESSION_TASKS: TaskStructureTemplate = {
     "VDO": {
-        "Checking": [t("Cutting", 20), t("Color", 15), t("Sound", 15)],
-        "Details": [t("Thumbnail", 7), t("Title/Description", 7), t("Sharing Debugging", 3)]
+        "Checking": [t("Cutting", 20, 10, C_VIDEO), t("Color", 15, 5, C_VIDEO), t("Sound", 15, 5, C_AUDIO)],
+        "Details": [t("Thumbnail", 7, 3, C_ARTWORK), t("Title/Description", 7, 2, C_DOC), t("Sharing Debugging", 3, 1, C_ADMIN)]
     }
 };
 
@@ -104,33 +118,52 @@ const calculateDateFromOffset = (releaseDateStr: string, daysBefore: number): st
     return `${yyyy}-${mm}-${dd}`;
 };
 
+// Helper to calculate start date from due date and duration
+const calculateStartDate = (dueDateStr: string, duration: number): string => {
+    if (!dueDateStr) return "";
+    const dueDate = new Date(dueDateStr + 'T00:00:00');
+    dueDate.setDate(dueDate.getDate() - duration);
+    
+    const yyyy = dueDate.getFullYear();
+    const mm = String(dueDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(dueDate.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+};
+
 export const createTaskStructure = (rawTasks: TaskStructureTemplate, releaseDate: string): TaskGroup[] => {
     const structuredTasks: TaskGroup[] = [];
     
     for (const [taskTitle, content] of Object.entries(rawTasks)) {
         const subtasks: Subtask[] = [];
         
-        // Helper to process a single item (string or config object)
+        // Helper to process a single item
         const processItem = (item: string | TaskConfigItem, prefix: string = ""): Subtask => {
             let name = "";
             let days = DEFAULT_DAYS_BEFORE;
+            let duration = DEFAULT_DURATION;
+            let color = DEFAULT_COLOR;
 
             if (typeof item === 'string') {
                 name = item;
             } else {
                 name = item.name;
                 days = item.daysBeforeRelease;
+                duration = item.duration;
+                color = item.color;
             }
 
             const displayName = prefix ? `${prefix}: ${name}` : name;
             const dueDate = calculateDateFromOffset(releaseDate, days);
+            const startDate = calculateStartDate(dueDate, duration);
 
             return {
                 name: displayName, 
                 assignee: "", 
                 status: "To do", 
+                startDate: startDate,
                 dueDate: dueDate,
-                remark: "" 
+                remark: "",
+                color: color
             };
         };
 
@@ -146,22 +179,25 @@ export const createTaskStructure = (rawTasks: TaskStructureTemplate, releaseDate
             }
         }
         
-        // Determine Task Group Due Date (Usually the earliest due date of its subtasks for priority, 
-        // or we can use the latest. Let's use the earliest to indicate when this group 'starts' needing attention 
-        // or simply the earliest deadline within the group).
-        // For simplicity in this UI, let's pick the *earliest* deadline in the group so the header shows the most urgent date.
+        // Determine Task Group Dates
         let groupDueDate = "";
+        let groupStartDate = "";
+        
         if (subtasks.length > 0) {
-            // Sort temporarily to find earliest
-            const sorted = [...subtasks].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-            groupDueDate = sorted[0].dueDate;
+            // Sort to find ranges
+            const byDue = [...subtasks].sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+            const byStart = [...subtasks].sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+            
+            groupDueDate = byDue[0].dueDate; // Earliest deadline
+            groupStartDate = byStart[0].startDate; // Earliest start
         }
 
         structuredTasks.push({ 
             title: taskTitle, 
             subtasks: subtasks,
             status: 'To do', 
-            dueDate: groupDueDate
+            dueDate: groupDueDate,
+            startDate: groupStartDate
         });
     }
     return structuredTasks;
@@ -176,7 +212,6 @@ export const getTaskTemplate = (type: string) => {
     }
 };
 
-// Legacy export kept for reference, but internal logic updated to use offsets
 export const calculateDueDateTime = (releaseDateStr: string): string => {
     return calculateDateFromOffset(releaseDateStr, DEFAULT_DAYS_BEFORE);
 };
@@ -209,21 +244,13 @@ export const getStatusColorClass = (status: string): string => {
 
 export const formatDateDisplay = (dateStr: string): string => {
     if (!dateStr) return 'N/A';
-    return dateStr.split('-').reverse().join('-');
+    // Ensure we handle potentially empty or invalid strings gracefully
+    const parts = dateStr.split('-');
+    if (parts.length !== 3) return dateStr;
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
 };
 
 // --- New Helpers for Views ---
-
-export interface FlattenedTask {
-    id: string; // combo of project id and task indices
-    projectId: string;
-    projectName: string;
-    taskName: string;
-    status: ProjectStatus;
-    dueDate: string;
-    assignee: string;
-    type: 'Project' | 'TaskGroup' | 'Subtask';
-}
 
 export const getAllTasksFlattened = (projects: Project[]): FlattenedTask[] => {
     const allTasks: FlattenedTask[] = [];
@@ -238,8 +265,9 @@ export const getAllTasksFlattened = (projects: Project[]): FlattenedTask[] => {
             status: project.status,
             dueDate: project.releaseDate,
             assignee: project.artist,
-            type: 'Project'
-        });
+            type: 'Project',
+            color: '#4f46e5' // Indigo-600
+        } as FlattenedTask);
 
         // Add Subtasks
         if (project.tasks) {
@@ -252,10 +280,12 @@ export const getAllTasksFlattened = (projects: Project[]): FlattenedTask[] => {
                             projectName: project.projectName,
                             taskName: sub.name,
                             status: sub.status,
+                            startDate: sub.startDate,
                             dueDate: sub.dueDate,
                             assignee: sub.assignee,
-                            type: 'Subtask'
-                        });
+                            type: 'Subtask',
+                            color: sub.color || DEFAULT_COLOR
+                        } as FlattenedTask);
                     }
                 });
             });
